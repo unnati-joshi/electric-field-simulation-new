@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import "./App.css";
+import "./index.css";
 
-const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 400;
+const CANVAS_WIDTH = 1000;
+const CANVAS_HEIGHT = 600;
 const CHARGE_RADIUS = 10;
 const COULOMB_CONSTANT = 8.99e9;
 const CHARGE_VALUE = 1e-9; // 1 nC
@@ -21,9 +23,9 @@ const ElectricFieldSimulation = () => {
     const drawCharge = (x, y, isPositive) => {
       ctx.beginPath();
       ctx.arc(x, y, CHARGE_RADIUS, 0, 2 * Math.PI);
-      ctx.fillStyle = isPositive ? "red" : "blue";
+      ctx.fillStyle = isPositive ? "yellow" : "red"; // Yellow for positive, red for negative
       ctx.fill();
-      ctx.strokeStyle = "black";
+      ctx.strokeStyle = "white"; // Border color for visibility
       ctx.stroke();
     };
 
@@ -64,7 +66,6 @@ const ElectricFieldSimulation = () => {
 
         if (x < 0 || x > CANVAS_WIDTH || y < 0 || y > CANVAS_HEIGHT) break;
 
-        // Check if the line is near a charge
         const nearCharge = charges.some(
           (charge) =>
             Math.sqrt((charge.x - x) ** 2 + (charge.y - y) ** 2) < CHARGE_RADIUS
@@ -94,8 +95,8 @@ const ElectricFieldSimulation = () => {
     };
 
     const drawFieldLines = () => {
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(0, 255, 0, 0.8)"; // Brighter green for field lines
+      ctx.lineWidth = 3; // Thicker field lines
 
       charges.forEach((charge) => {
         const numLines = 8;
@@ -110,7 +111,6 @@ const ElectricFieldSimulation = () => {
             const [x1, y1] = points[j];
             const [x2, y2] = points[j + 1];
             if (j % 10 === 0) {
-              // Draw an arrow every 10 points
               drawArrow(x1, y1, x2, y2);
             } else {
               ctx.moveTo(x1, y1);
@@ -159,7 +159,7 @@ const ElectricFieldSimulation = () => {
           imageData.data[index] = intensity;
           imageData.data[index + 1] = 0;
           imageData.data[index + 2] = 255 - intensity;
-          imageData.data[index + 3] = 64; // Set alpha to 64 for more transparency
+          imageData.data[index + 3] = 64;
         }
       }
 
@@ -187,7 +187,7 @@ const ElectricFieldSimulation = () => {
       const rect = canvasRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      const isPositive = e.metaKey || e.ctrlKey; // Check for both Command (Mac) and Ctrl (Windows)
+      const isPositive = e.metaKey || e.ctrlKey;
       setCharges([...charges, { x, y, isPositive }]);
     }
   };
@@ -226,20 +226,7 @@ const ElectricFieldSimulation = () => {
 
   return (
     <div>
-      <h1
-        style={{
-          textAlign: "center",
-        }}
-      >
-        Electric Field Simulation
-      </h1>
-      <p
-        style={{
-          textAlign: "center",
-        }}
-      >
-        Akhil Penumudy • 2024 • Final: Physics Project
-      </p>
+      <h1>Electric Field Simulation</h1>
       <canvas
         ref={canvasRef}
         onClick={handleCanvasClick}
@@ -247,87 +234,14 @@ const ElectricFieldSimulation = () => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        style={{
-          border: "1px solid black",
-          marginLeft: 420,
-          marginRight: 420,
-          marginTop: 20,
-        }}
       />
-      <p
-        style={{
-          textAlign: "center",
-        }}
-      >
-        Click to add a negative charge. Ctrl+Click or ⌘+Click to add a positive
-        charge. Drag charges to move them.
+      <p>
+        Click to add a negative charge. Ctrl+Click or ⌘+Click to add a positive charge.
+        Drag charges to move them.
       </p>
-      <p
-        style={{
-          textAlign: "center",
-        }}
-      >
-        🔵 Negitive charge 🔴 Positive charge
+      <p>
+        🔴 Negative charge 🟡 Positive charge
       </p>
-
-      <div
-        style={{
-          maxWidth: "800px",
-          margin: "auto",
-          padding: "20px",
-          textAlign: "left",
-        }}
-      >
-        <h2>Important Formulas Used in This Simulation:</h2>
-        <ol>
-          <li>
-            <strong>Coulomb's Law:</strong>
-            <p>{"\\[F = k \\frac{q_1 q_2}{r^2}\\]"}</p>
-            <p>
-              where F is the force, k is Coulomb's constant, q₁ and q₂ are the
-              magnitudes of the charges, and r is the distance between them.
-            </p>
-          </li>
-          <li>
-            <strong>Electric Field Strength:</strong>
-            <p>{"\\[E = k \\frac{q}{r^2}\\]"}</p>
-            <p>
-              where E is the electric field strength, k is Coulomb's constant, q
-              is the source charge, and r is the distance from the charge.
-            </p>
-          </li>
-          <li>
-            <strong>Electric Field Components:</strong>
-            <p>
-              {
-                "\\[E_x = E \\frac{x - x_0}{r}, \\quad E_y = E \\frac{y - y_0}{r}\\]"
-              }
-            </p>
-            <p>
-              where E<sub>x</sub> and E<sub>y</sub> are the x and y components
-              of the electric field, (x, y) is the point where the field is
-              calculated, and (x₀, y₀) is the position of the charge.
-            </p>
-          </li>
-          <li>
-            <strong>Electric Potential:</strong>
-            <p>{"\\[V = k \\frac{q}{r}\\]"}</p>
-            <p>
-              where V is the electric potential, k is Coulomb's constant, q is
-              the source charge, and r is the distance from the charge.
-            </p>
-          </li>
-          <li>
-            <strong>Superposition Principle:</strong>
-            <p>{"\\[E_{total} = \\sum E_i, \\quad V_{total} = \\sum V_i\\]"}</p>
-            <p>
-              The total electric field or potential at any point is the vector
-              sum of the fields or scalar sum of the potentials due to
-              individual charges.
-            </p>
-          </li>
-        </ol>
-      </div>
     </div>
   );
 };
